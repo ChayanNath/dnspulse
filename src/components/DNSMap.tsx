@@ -4,7 +4,8 @@ import {
   Geography,
   Marker,
 } from "react-simple-maps";
-import { DNSResult } from "@/app/page";
+import { DNSResult } from "./DNSChecker";
+
 const DNSMap = ({ dnsResults }: { dnsResults: DNSResult[] }) => {
   return (
     <ComposableMap projectionConfig={{ scale: 150 }}>
@@ -20,15 +21,25 @@ const DNSMap = ({ dnsResults }: { dnsResults: DNSResult[] }) => {
           ))
         }
       </Geographies>
-      {dnsResults.map((result, index) => (
-        <Marker key={index} coordinates={[result.lon, result.lat]}>
-          <circle r={5} fill="#F00" />
-          <title>
-            Resolver: {result.resolver} &nbsp;IP: {result.ip} &nbsp;TTL:{" "}
-            {result.ttl}
-          </title>
-        </Marker>
-      ))}
+      {dnsResults.map((result, index) => {
+        const isSuccessful = result.ip && result.ip !== "";
+        return (
+          <Marker key={index} coordinates={[result.lon, result.lat]}>
+            <circle
+              r={6}
+              fill={isSuccessful ? "#0F0" : "#F00"} // Green for success, Red for failure
+              stroke="#000"
+              strokeWidth={0.5}
+            />
+            <title>
+              Resolver: {result.resolver}{" "}
+              {isSuccessful
+                ? `| IP: ${result.ip} | TTL: ${result.ttl}`
+                : "| Resolution Failed"}
+            </title>
+          </Marker>
+        );
+      })}
     </ComposableMap>
   );
 };
